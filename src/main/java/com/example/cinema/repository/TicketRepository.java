@@ -4,4 +4,5 @@ import com.example.cinema.model.Ticket;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
+    int countByScreeningId(Long screeningId);
 }
