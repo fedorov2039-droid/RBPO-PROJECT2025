@@ -10,41 +10,34 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/movies")
 public class MovieController {
+    private final MovieRepository repository;
 
-    private final MovieRepository movieRepository;
-
-    public MovieController(MovieRepository movieRepository) {
-        this.movieRepository = movieRepository;
+    public MovieController(MovieRepository repository) {
+        this.repository = repository;
     }
 
     @GetMapping
-    public List<Movie> getAllMovies() {
-        return movieRepository.findAll();
+    public List<Movie> getAll() {
+        return repository.findAll();
     }
 
     @PostMapping
-    public Movie createMovie(@RequestBody Movie movie) {
-        return movieRepository.save(movie);
+    public Movie create(@RequestBody Movie movie) {
+        return repository.save(movie);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Movie> updateMovie(@PathVariable Long id, @RequestBody Movie movieDetails) {
-        return movieRepository.findById(id)
-                .map(movie -> {
-                    movie.setTitle(movieDetails.getTitle());
-                    movie.setDescription(movieDetails.getDescription());
-                    movie.setDurationMinutes(movieDetails.getDurationMinutes());
-                    return ResponseEntity.ok(movieRepository.save(movie));
-                })
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Movie> update(@PathVariable Long id, @RequestBody Movie details) {
+        return repository.findById(id).map(movie -> {
+            movie.setTitle(details.getTitle());
+            movie.setDescription(details.getDescription());
+            movie.setDurationMinutes(details.getDurationMinutes());
+            return ResponseEntity.ok(repository.save(movie));
+        }).orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteMovie(@PathVariable Long id) {
-        if (movieRepository.existsById(id)) {
-            movieRepository.deleteById(id);
-            return ResponseEntity.ok().build();
-        }
-        return ResponseEntity.notFound().build();
+    public void delete(@PathVariable Long id) {
+        repository.deleteById(id);
     }
 }

@@ -10,29 +10,24 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/screenings")
 public class ScreeningController {
+    private final ScreeningRepository repository;
 
-    private final ScreeningRepository screeningRepository;
-
-    public ScreeningController(ScreeningRepository screeningRepository) {
-        this.screeningRepository = screeningRepository;
+    public ScreeningController(ScreeningRepository repository) {
+        this.repository = repository;
     }
 
     @GetMapping
-    public List<Screening> getAllScreenings() {
-        return screeningRepository.findAll();
+    public List<Screening> getAll() {
+        return repository.findAll();
     }
 
     @PostMapping
-    public Screening createScreening(@RequestBody Screening screening) {
-        return screeningRepository.save(screening);
+    public Screening create(@RequestBody Screening screening) {
+        return repository.save(screening);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteScreening(@PathVariable Long id) {
-        if (screeningRepository.existsById(id)) {
-            screeningRepository.deleteById(id);
-            return ResponseEntity.ok().build();
-        }
-        return ResponseEntity.notFound().build();
+    public void delete(@PathVariable Long id) {
+        repository.deleteById(id);
     }
 }
