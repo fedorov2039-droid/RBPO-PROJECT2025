@@ -2,6 +2,7 @@ package com.example.cinema.controller;
 
 import com.example.cinema.model.Ticket;
 import com.example.cinema.repository.TicketRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/tickets")
 public class TicketController {
+
     private final TicketRepository repository;
 
     public TicketController(TicketRepository repository) {
@@ -22,9 +24,17 @@ public class TicketController {
 
     @PostMapping
     public Ticket create(@RequestBody Ticket ticket) {
-        // Простой POST, без бизнес-логики (как просит лаба 2)
-        // JSON: { "screening": {"id": 1}, "customer": {"id": 1} }
         return repository.save(ticket);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Ticket> update(@PathVariable Long id, @RequestBody Ticket details) {
+        return repository.findById(id).map(ticket -> {
+            ticket.setScreening(details.getScreening());
+            ticket.setCustomer(details.getCustomer());
+            ticket.setRefunded(details.isRefunded()); // Используем стандартный геттер для boolean
+            return ResponseEntity.ok(repository.save(ticket));
+        }).orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
