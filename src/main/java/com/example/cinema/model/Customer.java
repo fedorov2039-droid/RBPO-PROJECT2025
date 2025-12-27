@@ -3,8 +3,12 @@ package com.example.cinema.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "customers")
+@Table(
+        name = "customers",
+        uniqueConstraints = @UniqueConstraint(name = "uk_customers_email", columnNames = "email")
+)
 public class Customer {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -12,7 +16,7 @@ public class Customer {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false, unique = true) // Email должен быть уникальным
+    @Column(nullable = false, unique = true)
     private String email;
 
     public Customer() {}

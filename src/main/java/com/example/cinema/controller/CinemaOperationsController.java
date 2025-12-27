@@ -3,54 +3,64 @@ package com.example.cinema.controller;
 import com.example.cinema.model.Screening;
 import com.example.cinema.model.Ticket;
 import com.example.cinema.service.CinemaService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/cinema")
 public class CinemaOperationsController {
 
-    private final CinemaService service;
+    private final CinemaService cinemaService;
 
-    public CinemaOperationsController(CinemaService service) {
-        this.service = service;
+    public CinemaOperationsController(CinemaService cinemaService) {
+        this.cinemaService = cinemaService;
     }
 
-    @PostMapping("/buy")
-    public ResponseEntity<?> buyTicket(@RequestParam Long userId, @RequestParam Long screeningId) {
-        try {
-            Ticket ticket = service.buyTicket(userId, screeningId);
-            return ResponseEntity.ok(ticket);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    @PostMapping("/tickets/buy")
+    public Ticket buyTicket(
+            @RequestParam Long customerId,
+            @RequestParam Long screeningId,
+            @RequestParam Integer seatNumber
+    ) {
+        return cinemaService.buyTicket(customerId, screeningId, seatNumber);
     }
 
-    @PostMapping("/return/{ticketId}")
-    public ResponseEntity<?> returnTicket(@PathVariable Long ticketId) {
-        try {
-            service.returnTicket(ticketId);
-            return ResponseEntity.ok("Билет возвращен успешно");
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    @PostMapping("/tickets/{ticketId}/return")
+    public Ticket returnTicket(@PathVariable Long ticketId) {
+        return cinemaService.returnTicket(ticketId);
     }
 
-    @DeleteMapping("/cancel-screening/{id}")
-    public ResponseEntity<?> cancelScreening(@PathVariable Long id) {
-        service.cancelScreening(id);
-        return ResponseEntity.ok("Сеанс отменен, билеты возвращены");
+    @PostMapping("/screenings/{id}/cancel")
+    public Screening cancelScreening(@PathVariable Long id) {
+        return cinemaService.cancelScreening(id);
     }
 
-    @GetMapping("/search")
-    public List<Screening> search(@RequestParam double maxPrice) {
-        return service.findAffordableScreenings(maxPrice);
+    @PostMapping("/screenings/{id}/reschedule")
+    public Screening rescheduleScreening(
+            @PathVariable Long id,
+            @RequestParam LocalDateTime newStartTime
+    ) {
+        return cinemaService.rescheduleScreening(id, newStartTime);
     }
 
-    @GetMapping("/stats/{screeningId}")
-    public ResponseEntity<String> getStats(@PathVariable Long screeningId) {
-        return ResponseEntity.ok(service.getOccupancyStats(screeningId));
+    @PostMapping("/screenings/create-with-blocked-seats")
+    public Screening createScreeningWithBlockedSeats(
+            @RequestParam Long movieId,
+            @RequestParam Long hallId,
+            @RequestParam LocalDateTime startTime,
+            @RequestParam double price,
+            @RequestParam Long systemCustomerId,
+            @RequestParam(required = false) List<Integer> seatsToBlock
+    ) {
+        return cinemaService.createScreeningWithBlockedSeats(
+                movieId,
+                hallId,
+                startTime,
+                price,
+                systemCustomerId,
+                seatsToBlock
+        );
     }
 }

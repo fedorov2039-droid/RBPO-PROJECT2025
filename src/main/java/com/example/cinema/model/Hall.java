@@ -3,13 +3,17 @@ package com.example.cinema.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "halls")
+@Table(
+        name = "halls",
+        uniqueConstraints = @UniqueConstraint(name = "uk_halls_name", columnNames = "name")
+)
 public class Hall {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true) // Название зала уникально
+    @Column(nullable = false, unique = true)
     private String name;
 
     @Column(nullable = false)

@@ -4,8 +4,15 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "screenings")
+@Table(
+        name = "screenings",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_screenings_hall_start",
+                columnNames = {"hall_id", "start_time"}
+        )
+)
 public class Screening {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -18,11 +25,14 @@ public class Screening {
     @JoinColumn(name = "hall_id", nullable = false)
     private Hall hall;
 
-    @Column(nullable = false)
+    @Column(name = "start_time", nullable = false)
     private LocalDateTime startTime;
 
     @Column(nullable = false)
     private double price;
+
+    @Column(nullable = false)
+    private boolean cancelled = false;
 
     public Screening() {}
 
@@ -40,4 +50,7 @@ public class Screening {
 
     public double getPrice() { return price; }
     public void setPrice(double price) { this.price = price; }
+
+    public boolean isCancelled() { return cancelled; }
+    public void setCancelled(boolean cancelled) { this.cancelled = cancelled; }
 }
